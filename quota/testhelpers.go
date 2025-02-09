@@ -32,13 +32,13 @@ func PrepareQuotaTestImage(t *testing.T) (string, error) {
 	// See https://git.kernel.org/pub/scm/fs/xfs/xfsprogs-dev.git/commit/?id=6e0ed3d19c54603f0f7d628ea04b550151d8a262
 	const imageSize = 300 * 1024 * 1024
 
-	mkfs, err := exec.LookPath("mkfs.xfs")
+	mkfs, err := exec.LookPath("mkfs.ext4")
 	if err != nil {
 		return "", err
 	}
 
 	// create a sparse image
-	imageFile, err := os.CreateTemp("", "xfs-image")
+	imageFile, err := os.CreateTemp("", "ext4-image")
 	if err != nil {
 		return "", err
 	}
@@ -58,7 +58,7 @@ func PrepareQuotaTestImage(t *testing.T) (string, error) {
 
 	// The reason for disabling these options is sometimes people run with a newer userspace
 	// than kernelspace
-	out, err := exec.Command(mkfs, "-m", "crc=0,finobt=0", imageFileName).CombinedOutput()
+	out, err := exec.Command(mkfs, "-O", "quota", "-E", "quotatype=prjquota", imageFileName).CombinedOutput()
 	if len(out) > 0 {
 		t.Log(string(out))
 	}
